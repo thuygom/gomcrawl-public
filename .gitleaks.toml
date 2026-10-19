@@ -1,0 +1,7 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Python callable default, not a LinkedIn client credential"
+regexTarget = "line"
+regexes = ['''^\s*linkedin_finder: LinkedInFinder = find_linkedin_profiles,\s*$''']

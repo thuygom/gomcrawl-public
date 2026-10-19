@@ -1,0 +1,228 @@
+version: "2026-08-05.1"
+
+rules:
+  - id: google_form
+    priority: 120
+    match:
+      exact_hosts:
+        - docs.google.com
+      path_prefixes:
+        - /forms/
+    result:
+      classification: google_form
+      resource_type: form
+      handling_mode: browser
+      crawlable: true
+      preferred_handler: google_form_browser
+      fallback_chain:
+        - plain_http
+        - browser
+
+  - id: google_document
+    priority: 110
+    match:
+      exact_hosts:
+        - docs.google.com
+      path_prefixes:
+        - /document/
+    result:
+      classification: google_drive
+      resource_type: document
+      handling_mode: api_connector
+      crawlable: false
+      preferred_handler: google_drive_connector
+      fallback_chain:
+        - google_drive_export
+        - direct_download
+
+  - id: google_spreadsheet
+    priority: 110
+    match:
+      exact_hosts:
+        - docs.google.com
+      path_prefixes:
+        - /spreadsheets/
+    result:
+      classification: google_drive
+      resource_type: spreadsheet
+      handling_mode: api_connector
+      crawlable: false
+      preferred_handler: google_sheets_connector
+      fallback_chain:
+        - google_drive_export
+        - direct_download
+
+  - id: google_presentation
+    priority: 110
+    match:
+      exact_hosts:
+        - docs.google.com
+      path_prefixes:
+        - /presentation/
+    result:
+      classification: google_drive
+      resource_type: presentation
+      handling_mode: api_connector
+      crawlable: false
+      preferred_handler: google_slides_connector
+      fallback_chain:
+        - google_drive_export
+        - direct_download
+
+  - id: google_drive_file
+    priority: 100
+    match:
+      exact_hosts:
+        - drive.google.com
+      path_prefixes:
+        - /file/
+        - /open
+    result:
+      classification: google_drive
+      resource_type: file
+      handling_mode: api_connector
+      crawlable: false
+      preferred_handler: google_drive_connector
+      fallback_chain:
+        - direct_download
+
+  - id: youtube_watch
+    priority: 100
+    match:
+      host_suffixes:
+        - youtube.com
+      exact_paths:
+        - /watch
+      required_query_keys:
+        - v
+    result:
+      classification: youtube
+      resource_type: video
+      handling_mode: platform_extractor
+      crawlable: true
+      preferred_handler: youtube_transcript
+      fallback_chain:
+        - youtube_oembed
+        - youtube_transcript
+        - browser
+
+  - id: youtube_short
+    priority: 100
+    match:
+      exact_hosts:
+        - youtu.be
+    result:
+      classification: youtube
+      resource_type: video
+      handling_mode: platform_extractor
+      crawlable: true
+      preferred_handler: youtube_transcript
+      fallback_chain:
+        - youtube_oembed
+        - youtube_transcript
+        - browser
+
+  - id: github_repository
+    priority: 100
+    match:
+      exact_hosts:
+        - github.com
+      path_segment_count:
+        min: 2
+        max: 2
+    result:
+      classification: github
+      resource_type: source_repository
+      handling_mode: platform_extractor
+      crawlable: true
+      preferred_handler: github_connector
+      fallback_chain:
+        - github_api
+        - plain_http
+
+  - id: linkedin
+    priority: 90
+    match:
+      host_suffixes:
+        - linkedin.com
+    result:
+      classification: linkedin
+      resource_type: social_post
+      handling_mode: platform_extractor
+      crawlable: true
+      preferred_handler: linkedin_extractor
+      fallback_chain:
+        - platform_api
+        - browser
+
+  - id: notion
+    priority: 90
+    match:
+      exact_hosts:
+        - notion.so
+      host_suffixes:
+        - notion.site
+    result:
+      classification: notion
+      resource_type: document
+      handling_mode: api_connector
+      crawlable: true
+      preferred_handler: notion_connector
+      fallback_chain:
+        - plain_http
+        - browser
+
+  - id: static_file
+    priority: 20
+    match:
+      extensions:
+        - pdf
+        - doc
+        - docx
+        - xls
+        - xlsx
+        - ppt
+        - pptx
+        - csv
+        - json
+        - xml
+        - txt
+        - md
+        - jpg
+        - jpeg
+        - png
+        - gif
+        - webp
+        - svg
+        - mp3
+        - wav
+        - m4a
+        - mp4
+        - mov
+        - avi
+        - zip
+        - tar
+        - gz
+    result:
+      classification: file
+      resource_type: file
+      handling_mode: direct_download
+      crawlable: false
+      preferred_handler: file_downloader
+      fallback_chain:
+        - direct_download
+
+  - id: default_webpage
+    priority: 0
+    match:
+      any: true
+    result:
+      classification: webpage
+      resource_type: webpage
+      handling_mode: article_extractor
+      crawlable: true
+      preferred_handler: generic_article_extractor
+      fallback_chain:
+        - plain_http
+        - article_extractor
+        - browser
